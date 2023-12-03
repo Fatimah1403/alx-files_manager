@@ -1,18 +1,19 @@
-// import { tryCatch } from 'bull/lib/utils';
 import { createClient } from 'redis';
-import { promisify } from 'util';
+const util = require('util');
 
 class RedisClient {
     constructor() {
         this.client = createClient();
-        this.client.on('error', (err) => console.log(err));
-        this.connected = false;
-        this.client.on('connect', () => {
-            this.connected = true;
-        })
+        this.client.getAsync = util.promisify(this.client.get).bind(this.client);
+        this.client.setExAsync = util.promisify(this.client.setex).bind(this.client);
+        this.client.delAsync = util.promisify(this.client.del).bind(this.client);
+
+        this.client.on('error', (err) => {
+            console.error(`Redis client not connected to the server: ${err}`);
+        });
     }
     isAlive() {
-        if (this.connected) {
+        if (this.client.connected) {
             return true;
         } else {
             return false;
@@ -20,19 +21,18 @@ class RedisClient {
     }
 
     async get(key) {
-        const getAsync = promisify(this.client.get).bind(this.client);
         try {
-            const value = await getAsync(key);
+            const value = await this.client.getAsync(key);
             return value;
-        } catch (error) {
-            console.error(error);
+        } catch (err) {
+            console.error(err);
             throw err;
         }
     }
 
     async set(key, value, duration) {
       try {
-        const result = await this.client.set(key, duration, value);
+        const result = await this.client.setExAsync(key, duration, value);
         return result
       } catch (err) {
         console.error(err);
@@ -41,16 +41,15 @@ class RedisClient {
     }
 
     async del(key) {
-        const delAsync = promisify(this.client.del).bind(this.client);
         try {
-            const delResult = await delAsync(key);
+            const delResult = await this.client.delAsync(key);
             return delResult;
-        } catch (error) {
-            console.error(error);
-            throw error;
+        } catch (err) {
+            console.error(err);
+            throw err;
         }
     }
 }
 
 const redisClient = new RedisClient();
-module.exports = redisClient;
+export default redisClient;
