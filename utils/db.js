@@ -1,8 +1,10 @@
 const { MongoClient } = require('mongodb');
+const sha1 = require('sha1');
 
 const host = process.env.DB_HOST || 'localhost';
 const port = process.env.DB_PORT || 27017;
 const dbName = process.env.DB_DATABASE || 'files_manager';
+console.log(dbName);
 const url = `mongodb://${host}:${port}`;
 
 class DBClient {
@@ -48,6 +50,29 @@ class DBClient {
       console.error(error);
       throw error;
     }
+  }
+
+  async addNewUser(email, password) {
+    try {
+      const userCollection = this.db.collection('users');
+      const hashedPassword = sha1(password);
+      const userObj = { email, password: hashedPassword };
+      const userResult = await userCollection.insertOne(userObj);
+      return userResult;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  // check if the email of the user already exist.
+  async checkEmail(email) {
+    const userCollection = this.db.collection('users');
+    const userResult = await userCollection.findOne({ email });
+    if (userResult) {
+      return userResult;
+    }
+    return null;
   }
 }
 const dbClient = new DBClient();
