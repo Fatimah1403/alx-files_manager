@@ -74,6 +74,43 @@ class DBClient {
     }
     return null;
   }
+
+  async checkUserPassword(email, password) {
+    const userCollection = this.db.collection('users');
+    const hashedPassword = sha1(password);
+    const result = await userCollection.findOne({ email, password: hashedPassword });
+    return result;
+  }
+
+  // check weda the credentials base on Token
+  async UserTokenChecks(token) {
+    try {
+      const credentials = (Buffer.from(token.split(' ')[1], 'base64').toString('utf-8'));
+      const [email, password] = credentials.split(':');
+      if (email && password) {
+        const result = await this.checkUserPassword(email, password);
+        return result;
+      }
+      return null;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  async getUserById(userId) {
+    try {
+      const userCollection = this.db.collection('users');
+      const userResult = await userCollection.findOne({ _id: userId });
+
+      if (userResult) {
+        return userResult;
+      }
+      return null;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
 }
 const dbClient = new DBClient();
 export default dbClient;
