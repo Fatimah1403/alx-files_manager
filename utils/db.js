@@ -98,7 +98,7 @@ class DBClient {
     }
   }
   
-
+  // check user by their Id
   async getUserById(userId) {
     try {
       const userCollection = this.db.collection('users');
