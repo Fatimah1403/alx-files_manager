@@ -85,22 +85,24 @@ class DBClient {
   // check weda the credentials base on Token
   async UserTokenChecks(token) {
     try {
-      const credentials = (Buffer.from(token.split(' ')[1], 'base64').toString('utf-8'));
-      const [email, password] = credentials.split(':');
+      const credentials = (Buffer.from(token, 'base64').toString().split(':'));
+      const email = credentials[0];
+      const password = credentials[1];
       if (email && password) {
         const result = await this.checkUserPassword(email, password);
         return result;
       }
       return null;
     } catch (error) {
-      return null;
-    }
-  }
+      return null;
+    }
+  }
 
   async getUserById(userId) {
     try {
       const userCollection = this.db.collection('users');
-      const userResult = await userCollection.findOne({ _id: userId });
+      const objId = new ObjectId(userId)
+      const userResult = await userCollection.findOne({ _id: objId });
 
       if (userResult) {
         return userResult;

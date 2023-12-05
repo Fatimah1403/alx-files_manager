@@ -35,12 +35,13 @@ export default class AuthController {
 
     // create a new Token
     const genNewToken = uuidv4();
-    const authKey = `autth_${genNewToken}`;
+    const authKey = `auth_${genNewToken}`;
+    // console.log(genNewToken);
     const userId = userToken._id;
     try {
       await redisClient.set(authKey, userId.toString(), EX);
     } catch (error) {
-      res.status(500).json({ error: 'Error stting Redis key' });
+      res.status(500).json({ error: 'Error setting Redis key' });
       return;
     }
     res.status(200).json({ token: genNewToken });
