@@ -85,18 +85,19 @@ class DBClient {
   // check weda the credentials base on Token
   async UserTokenChecks(token) {
     try {
-      const credentials = (Buffer.from(token, 'base64').toString().split(':'));
-      if (credentials.length !==2) {
+      const credentials = Buffer.from(token, 'base64').toString().split(':');
+      if (credentials.length !== 2) {
         return null;
       }
-      const email = credentials[0];
-      const password = credentials[1];
+      const [email, password] = credentials;
       const result = await this.checkUserPassword(email, password);
       return result;
     } catch (error) {
-      return null;
-   }
-  }
+      console.error('UserTokenChecks Error:', error);
+      return { error: 'Internal Server Error' };
+    }
+  }
+  
 
   async getUserById(userId) {
     try {
