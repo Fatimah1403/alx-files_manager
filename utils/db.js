@@ -1,4 +1,4 @@
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId } = require('mongodb');
 const sha1 = require('sha1');
 
 const host = process.env.DB_HOST || 'localhost';
@@ -86,16 +86,16 @@ class DBClient {
   async UserTokenChecks(token) {
     try {
       const credentials = (Buffer.from(token, 'base64').toString().split(':'));
+      if (credentials.length !==2) {
+        return null;
+      }
       const email = credentials[0];
       const password = credentials[1];
-      if (email && password) {
-        const result = await this.checkUserPassword(email, password);
-        return result;
-      }
-      return null;
+      const result = await this.checkUserPassword(email, password);
+      return result;
     } catch (error) {
       return null;
-    }
+   }
   }
 
   async getUserById(userId) {
