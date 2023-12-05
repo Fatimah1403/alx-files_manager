@@ -14,7 +14,7 @@ export default class AuthController {
 
     // check if the header starts with Basic, follow by space.
     const startWithBasic = req.headers.authorization.startsWith('Basic ');
-    if (startWithBasic) {
+    if (!startWithBasic) {
       res.status(401).json({ error: 'Unauthorized' });
       return;
     }
