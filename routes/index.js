@@ -1,6 +1,7 @@
 import AppController from '../controllers/AppController';
 import UsersController from '../controllers/UsersController';
 import AuthController from '../controllers/AuthController';
+import FilesController from '../controllers/FilesController';
 
 const express = require('express');
 
@@ -18,5 +19,8 @@ router.get('/connect', AuthController.getConnect);
 router.get('/disconnect', AuthController.getDisconnect);
 
 router.get('/users/me', UsersController.getMe);
+
+// POST /files should create a new file in DB and in disk
+router.post('/files', FilesController.postUpload);
 
 module.exports = router;

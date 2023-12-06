@@ -97,12 +97,12 @@ class DBClient {
       return { error: 'Internal Server Error' };
     }
   }
-  
+
   // check user by their Id
   async getUserById(userId) {
     try {
       const userCollection = this.db.collection('users');
-      const objId = new ObjectId(userId)
+      const objId = new ObjectId(userId);
       const userResult = await userCollection.findOne({ _id: objId });
 
       if (userResult) {
@@ -112,6 +112,33 @@ class DBClient {
     } catch (error) {
       console.error(error);
       throw error;
+    }
+  }
+
+  // we get to get the parent folder.
+  async getTheParent(parentId, usersObj) {
+    const userCollection = this.db.collection('files');
+    const objId = new ObjectId(parentId);
+    const userID = new ObjectId(usersObj._id);
+    const results = await userCollection.findOne({ _id: objId, userId: userID });
+    return results;
+  }
+
+  // checking weda a file exist or not in d db.
+  async checkFileExist(file) {
+    const userCollection = this.db.collection('files');
+    const result = await userCollection.findOne({ file });
+    return result;
+  }
+
+  // creating a new file in d database.
+  async createNewFile(newObj) {
+    try {
+      const userCollection = this.db.collection('file');
+      const result = await userCollection.insertOne(newObj);
+      return result;
+    } catch (error) {
+      return null;
     }
   }
 }
